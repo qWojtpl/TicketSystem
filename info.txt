@@ -1,0 +1,51 @@
+1. sprawdzanie konsultantów online
+2. sprawdzenie kolejki
+3. zabranie pierwszej osoby z kolejki do chatu
+4. usunięcie tej osoby z kolejki
+
+
+
+
+SYSTEM KOLEJKI:
+ -> konsultant musi być online
+ -> konsultant po zakończeniu chatu/przejściu w tryb online musi zaznaczyć chęć dołączenia do kolejki
+
+
+ustawienia:
+- grupy
+- uprawnienia
+- wyłącz livechat
+- wyłącz tickety
+- dodawanie tematu ticketu
+- odbieranie ticketów
+- odbieranie livechat
+- dodawanie pracowników
+- refresh interval
+
+
+permisje:
+- all
+- employees.view - see employees
+- employees.add - add new employees
+- employees.edit - edit employees
+- employees.delete - delete employee
+- employees.edit.permissions - edit employee permissions (if employee doesn't have fe permission manage.employees.delete then he cannot give/remove it)
+- groups.view
+- groups.add
+- groups.edit
+- groups.delete
+- livechat.use
+- messages.receive
+- messages.send
+- logs.view
+- bans.add
+- bans.view
+- bans.remove
+- language.edit
+- language.change.default
+- hotbar.edit
+
+
+system permisji:
+- osoba z grupą o priority 3 może nadać pracownikowi grupy o priority 1, 2 i 3
+- osoba z grupą o priority 3 może nadać pracownikowi wszystkie uprawnienia, które są zawarte w jego grupach i które on sam posiada
