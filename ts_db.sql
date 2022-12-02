@@ -62,4 +62,50 @@ CREATE TABLE hotbar (
     item INT,
     slot INT,
     FOREIGN KEY (id_employee) REFERENCES employees(id_employee) ON DELETE CASCADE
-)
+);
+
+CREATE TABLE email_bans (
+    email VARCHAR(320) PRIMARY KEY,
+    id_employee INT,
+    date DATETIME,
+    FOREIGN KEY (id_employee) REFERENCES employees(id_employee)
+);
+
+CREATE TABLE ip_bans (
+    ip VARCHAR(15) PRIMARY KEY,
+    id_employee INT,
+    date DATETIME,
+    FOREIGN KEY (id_employee) REFERENCES employees(id_employee)
+);
+
+CREATE TABLE username_bans (
+    username VARCHAR(64) PRIMARY KEY,
+    id_employee INT,
+    date DATETIME,
+    FOREIGN KEY (id_employee) REFERENCES employees(id_employee)
+);
+
+CREATE TABLE cookie_bans (
+    cookie VARCHAR(128) PRIMARY KEY,
+    id_employee INT,
+    date DATETIME,
+    FOREIGN KEY (id_employee) REFERENCES employees(id_employee)
+);
+
+CREATE TABLE logs (
+    id_log INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id_employee INT,
+    ip VARCHAR(15),
+    date DATETIME,
+    description VARCHAR(512),
+    FOREIGN KEY (id_employee) REFERENCES employees(id_employee) ON DELETE CASCADE
+);
+
+CREATE TABLE login_logs (
+    id_log INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id_employee INT NOT NULL,
+    ip VARCHAR(15),
+    date DATETIME,
+    status INT,
+    FOREIGN KEY (id_employee) REFERENCES employees(id_employee) ON DELETE CASCADE
+);

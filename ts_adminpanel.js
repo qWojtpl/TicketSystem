@@ -70,6 +70,11 @@ class AdminPanel {
             let json = JSON.parse(data);
             if(!json.LoginConfirmed)
             {
+                if(json.WaitError)
+                {
+                    AdminPanel.CreateNotify('Not that fast!', 'Please wait a while before next try..', false, 7);
+                    return false;   
+                }
                 AdminPanel.CreateNotify(AdminPanel.Lang['error'], AdminPanel.Lang['credientalsInvalid'], false, 7);
                 return false;
             }
@@ -193,7 +198,7 @@ class AdminPanel {
                     }
                     if(AdminPanel.UserPermissions.includes('groups.add') || AdminPanel.UserPermissions.includes('all'))
                     {
-                        addGroup = "<button class='button_right' onClick='AdminPanel.LoadContent(`add_group`)''>" + AdminPanel.Lang['addNewGroup'] + "</button>";
+                        addGroup = "<button class='button-right' onClick='AdminPanel.LoadContent(`add_group`)''>" + AdminPanel.Lang['addNewGroup'] + "</button>";
                     }
                     var groups = [];
                     document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>" + AdminPanel.Lang['groups'] + addGroup + "</p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
@@ -245,7 +250,7 @@ class AdminPanel {
                     }
                     if(AdminPanel.UserPermissions.includes('employees.add') || AdminPanel.UserPermissions.includes('all'))
                     {
-                        addEmployee = "<button class='button_right' onClick='AdminPanel.LoadContent(`add_employee`)''>" + AdminPanel.Lang['addNewEmployee'] + "</button>";
+                        addEmployee = "<button class='button-right' onClick='AdminPanel.LoadContent(`add_employee`)''>" + AdminPanel.Lang['addNewEmployee'] + "</button>";
                     }
                     var employees = [];
                     document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>" + AdminPanel.Lang['employees'] + addEmployee + "</p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
@@ -295,7 +300,7 @@ class AdminPanel {
                 case "add_employee":
                     if(AdminPanel.UserPermissions.includes('employees.view') || AdminPanel.UserPermissions.includes('all'))
                     {
-                        var cancelButton = "<button class='button_right' onClick='AdminPanel.LoadContent(`employees`)'>" + AdminPanel.Lang['cancel'] + "</button>";
+                        var cancelButton = "<button class='button-right' onClick='AdminPanel.LoadContent(`employees`)'>" + AdminPanel.Lang['cancel'] + "</button>";
                     } else {
                         var cancelButton = "";
                     }
@@ -319,7 +324,7 @@ class AdminPanel {
                     }
                     if(AdminPanel.UserPermissions.includes('employees.view') || AdminPanel.UserPermissions.includes('all'))
                     {
-                        var cancelButton = "<button class='button_right' onClick='AdminPanel.LoadContent(`employees`)'>" + AdminPanel.Lang['cancel'] + "</button>";
+                        var cancelButton = "<button class='button-right' onClick='AdminPanel.LoadContent(`employees`)'>" + AdminPanel.Lang['cancel'] + "</button>";
                     } else {
                         var cancelButton = "";
                     }
@@ -352,7 +357,7 @@ class AdminPanel {
                 case "add_group":
                     if(AdminPanel.UserPermissions.includes('groups.view') || AdminPanel.UserPermissions.includes('all'))
                     {
-                        var cancelButton = "<button class='button_right' onClick='AdminPanel.LoadContent(`groups`)'>" + AdminPanel.Lang['cancel'] + "</button>";
+                        var cancelButton = "<button class='button-right' onClick='AdminPanel.LoadContent(`groups`)'>" + AdminPanel.Lang['cancel'] + "</button>";
                     } else {
                         var cancelButton = "";
                     }
@@ -368,10 +373,10 @@ class AdminPanel {
                     }
                     break;
                 case "settings":
-                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>Settings</p><div id='content-container' class='content-container-big'><div class='content-container-columnview'><button onClick='AdminPanel.LoadContent(`messages`);'>Messages</button><button onClick='AdminPanel.LoadContent(`logs`);'>Logs</button><button onClick='AdminPanel.LoadContent(`ts_info`);'>TicketSystem information</button><button onClick='AdminPanel.LoadContent(`bans`);'>Bans</button><button onClick='AdminPanel.LoadContent(`language`);'>Language</button><button onClick='AdminPanel.LoadContent(`manage_account`);'>Change account information</button><button onClick='AdminPanel.LoadContent(`edithotbar`);'>Edit hotbar</button></div></div>";
+                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>Settings</p><div id='content-container' class='content-container-big'><div class='content-container-columnview'><button onClick='AdminPanel.LoadContent(`messages`);'>Messages</button><button onClick='AdminPanel.LoadContent(`logs`);'>Logs</button><button onClick='AdminPanel.LoadContent(`ts_info`);'>TicketSystem information</button><button onClick='AdminPanel.LoadContent(`bans`);'>Bans</button><button onClick='AdminPanel.LoadContent(`language`);'>Language</button><button onClick='AdminPanel.LoadContent(`manage_account`);'>Change account information</button><button onClick='AdminPanel.LoadContent(`edithotbar`);'>Edit hotbar</button><button onClick='AdminPanel.LoadContent(`login_history`);'>Login history</button></div></div>";
                     break;
                 case "language":
-                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%'>Language</p><div id='content-container'><h1>Edit your language preferences</h1><div id='content-container-inputs'><select id='languageSelect'></select><button onClick='AdminPanel.ChangeLanguage(`languageSelect`)'>Save</button></div></div>";
+                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%'>Language<button class='button-right' onClick='AdminPanel.LoadContent(`settings`)'>Back</button></p><div id='content-container'><h1>Edit your language preferences</h1><div id='content-container-inputs'><select id='languageSelect'></select><button onClick='AdminPanel.ChangeLanguage(`languageSelect`)'>Save</button></div></div>";
                     if(AdminPanel.UserPermissions.includes('language.change.default') || AdminPanel.UserPermissions.includes('all'))
                     {
                         document.getElementById('content-container').innerHTML = document.getElementById('content-container').innerHTML + "<br><hr><br><h1>Set default language for all users</h1><div id='content-container-inputs'><select id='defaultLanguageSelect'>" + str + "</select><button onClick='AdminPanel.ChangeDefaultLanguage(`defaultLanguageSelect`)'>Save</button></div>";
@@ -398,6 +403,82 @@ class AdminPanel {
                     break;
                 case "ts_info":
                     document.getElementById('content').innerHTML = "<div id='content-container'><img src='./images/logo.png' style='width:60%;'><p>Version: 0.1.2</p><p>Release date: 24.11.2022</p></div>";
+                    break;
+                case "login_history":
+                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>Login history<button class='button-right' onClick='AdminPanel.LoadContent(`settings`)'>Cancel</button></p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
+                    $.post(AdminPanel.handler, {
+                        "type": "GetLoginHistory"
+                    }, function(data, status)
+                    {
+                        console.log(data);
+                        let json = JSON.parse(data);
+                        if(json.Error == 1)
+                        {
+                            AdminPanel.CreateNotify('Error', 'Something went wrong..', false, 7);
+                        } else if(json.authConfirmed == 0) {
+                            AdminPanel.Logout(true);
+                        } else {
+                            var str = "<table cellspacing=0><tr><th>Date</th><th>IP</th><th>Status</th></tr>";
+                            for(var i = 0; i < json.LoginHistory.length; i++)
+                            {
+                                var currentSession = false;
+                                if(json.LoginHistory[i][2] == 1)
+                                {
+                                    var loginStatus = "Successfully logged in";
+                                    if(json.LoginHistory[i][3] == 1)
+                                    {
+                                        currentSession = true;
+                                        loginStatus = loginStatus + " (Current session)";
+                                    }
+                                } else {
+                                    var loginStatus = "Failed";
+                                }
+                                if(currentSession)
+                                {
+                                    var str2 = "<tr style='background-color:green;color:white'>";
+                                } else {
+                                    var str2 = "<tr>";
+                                }
+                                str = str + str2 + "<td>" + json.LoginHistory[i][0] + "</td><td>" + json.LoginHistory[i][1] + "</td><td>" + loginStatus + "</td></tr>";
+                            }
+                            if(json.LoginHistory.length == 0)
+                            {
+                                str = str + "<tr><td colspan=3>No data found..</td></tr>";
+                            }
+                            str = str + "</table>";
+                            document.getElementById('content-container').innerHTML = str;
+                        }
+                    });
+                    break;
+                case "bans":
+                    if(!AdminPanel.UserPermissions.includes("bans.view") && !AdminPanel.UserPermissions.includes("all"))
+                    {
+                        AdminPanel.NoPermission();
+                        AdminPanel.LoadContent('settings');
+                        kicked = true;
+                        break;
+                    }
+                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>Bans<button class='button-right'>Cancel</button></p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
+                    $.post(AdminPanel.handler, {
+                        "type": "GetBans"
+                    }, function(data, status)
+                    {
+                        console.log(data);
+                        let json = JSON.parse(data);
+                        document.getElementById('content-container').innerHTML = "";
+                        var str = "<p>E-mail bans</p><table style='border:1px solid black'><tr><th>Email</th><th>Who banned</th><th>Date</th><th>Actions</th></tr>"; 
+                        if(json.Bans.email.length < 1)
+                        {
+                            str = "<tr><td colspan=4>There's no email bans..</tr>";
+                        } else {
+                            for(var i = 0; i < json.Bans.email.length; i++)
+                            {
+                                str = str + "<tr><td>" + json.Bans.email[i][0] + "</td><td>" + json.Bans.email[i][1] + "</td><td>" + json.Bans.email[i][2] + "</td></tr>";
+                            }
+                        }
+                        str = str + "</table>";
+                        document.getElementById('content-container').innerHTML = document.getElementById('content-container').innerHTML + str;
+                    });
                     break;
                 default:
                     document.getElementById('content').innerHTML = "<h1>404</h1>";
@@ -583,7 +664,6 @@ class AdminPanel {
             "permissions": permissions
         }, function(data, status)
         {
-            console.log(data);
             let json = JSON.parse(data);
             if(json.Error == 1)
             {
@@ -743,7 +823,6 @@ class AdminPanel {
             "value": lang
         }, function(data, status)
         {
-            console.log(data);
             let json = JSON.parse(data);
             if(json.Saved != 1)
             {

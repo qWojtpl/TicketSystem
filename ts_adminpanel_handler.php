@@ -82,10 +82,19 @@
                 case 'SetDefaultLanguage':
                     Program::SetDefaultLanguage();
                     break;
+                case 'GetLoginHistory':
+                    Handler::RegisterOutput('LoginHistory', Program::GetLoginHistory(Handler::GetSavedValue('tsAP_login'), 128));
+                    Handler::Output();
+                    break;
+                case 'GetBans':
+                    Handler::RegisterOutput('Bans', Program::GetBans());
+                    Handler::Output();
+                    break;
                 default:
                     Handler::RegisterOutput('Error', 1);
                     Handler::RegisterOutput('ErrorCode', Handler::GetErrorCode(1));
                     Handler::Output();
+                    break;
             }
         }
     }
@@ -103,24 +112,39 @@
 
         public static function Login()
         {
+            if(isset($_COOKIE['ts_LoginAwait']))
+            {
+                Handler::RegisterOutput('LoginConfirmed', false);
+                Handler::RegisterOutput('WaitError', true);
+                Handler::Output();
+                return false;
+            }
             $query = Handler::SendRequest('SELECT * FROM employees');
             if($query['Count'] > 0)
             {
                 while($row = mysqli_fetch_assoc($query['Query']))
                 {
-                    if($row['login'] == Handler::GetPostParameter('login') && $row['password'] == Handler::GetPostParameter('password'))
+                    if($row['login'] == Handler::GetPostParameter('login'))
                     {
-                        Handler::SaveValue('tsAP_auth', 1);
-                        Handler::SaveValue('tsAP_visibleName', $row['visibleName']);
-                        Handler::SaveValue('tsAP_login', $row['login']);
-                        Handler::RegisterOutput('LoginConfirmed', true);
-                        Handler::RegisterOutput('visibleName', $row['visibleName']);
-                        Handler::RegisterOutput('permissions', Program::GetUserPermissions($row['login']));
-                        Handler::Output();
-                        return true;
+                        if($row['password'] != Handler::GetPostParameter('password'))
+                        {
+                            Handler::SendRequest('INSERT INTO login_logs VALUES(default, '.$row['id_employee'].', "'.Handler::GetUserIP().'", now(), 0)');
+                        } else {
+                            Handler::SaveValue('tsAP_auth', 1);
+                            Handler::SaveValue('tsAP_visibleName', $row['visibleName']);
+                            Handler::SaveValue('tsAP_login', $row['login']);
+                            Handler::RegisterOutput('LoginConfirmed', true);
+                            Handler::RegisterOutput('visibleName', $row['visibleName']);
+                            Handler::RegisterOutput('permissions', Program::GetUserPermissions($row['login']));
+                            Handler::SendRequest('INSERT INTO login_logs VALUES(default, '.$row['id_employee'].', "'.Handler::GetUserIP().'", now(), 1)');
+                            Handler::SaveValue('tsAP_loginSessionID', mysqli_insert_id(Handler::$conn));
+                            Handler::Output();
+                            return true;
+                        }
                     }
                 }
             }
+            setcookie('ts_LoginAwait', 1, time() + 3);
             Handler::RegisterOutput('LoginConfirmed', false);
             Handler::Output();
             return false;
@@ -131,6 +155,7 @@
             Handler::RemoveSavedValue('tsAP_auth');
             Handler::RemoveSavedValue('tsAP_visibleName');
             Handler::RemoveSavedValue('tsAP_login');
+            Handler::RemoveSavedValue('tsAP_loginSessionID');
             Handler::RegisterOutput('Logout', true);
             Handler::Output();
         }
@@ -417,7 +442,7 @@
                         return false;
                     }
                 }
-                if(intval($newGroupPriority) > Program::GetUserMaxPriority(Handler::GetSavedValue('tsAP_login')))
+                if(intval($newGroupPriority) > Program::GetUserMaxPriority(Handler::GetSavedValue('tsAP_login')) || intval($newGroupPriority) < 0)
                 {
                     Handler::RegisterOutput('Error', 1);
                     Handler::RegisterOutput('FunctionErrorCode', 4);
@@ -553,6 +578,67 @@
             Handler::RegisterOutput('Saved', 1);
             Handler::Output();
             return true;
+        }
+
+        public static function GetLoginHistory($user, $limit)
+        {
+            $history = array();
+            if(!Program::ConfirmAuth())
+            {
+                Handler::RegisterOutput('authConfirmed', 0);
+                return $history;
+            }
+            $query = Handler::SendRequest('SELECT * FROM login_logs WHERE login_logs.id_employee = (SELECT id_employee FROM employees WHERE login="'.$user.'") ORDER BY id_log DESC LIMIT '.$limit);
+            if($query['Count'] > 0)
+            {
+                $i = 0;
+                while($row = mysqli_fetch_assoc($query['Query']))
+                {
+                    $history[$i] = array();
+                    $history[$i][0] = $row['date'];
+                    $history[$i][1] = $row['ip'];
+                    $history[$i][2] = $row['status'];
+                    if($row['id_log'] == Handler::GetSavedValue('tsAP_loginSessionID'))
+                    {
+                        $history[$i][3] = 1;
+                    }
+                    $i++;
+                }
+            }
+            return $history;
+        }
+
+        public static function GetBans()
+        {
+            $bans = array();
+            if(!Program::ConfirmAuth())
+            {
+                Handler::RegisterOutput('authConfirmed', 0);
+                return $bans;
+            }
+            if(!Program::UserHasPermission('bans.view') && !Program::UserHasPermission('all'))
+            {
+                Handler::RegisterOutput('PermissionError', 1);
+                return $bans;
+            }
+            $keys = ['email', 'ip', 'cookie', 'username'];
+            for($i = 0; $i < count($keys); $i++)
+            {
+                $query = Handler::SendRequest('SELECT '.$keys[$i].', employees.login, date FROM '.$keys[$i].'_bans JOIN (employees) USING (id_employee)');
+                $bans[$keys[$i]] = array();
+                if($query['Count'] > 0)
+                {
+                    $j = 0;
+                    while($row = mysqli_fetch_assoc($query['Query']))
+                    {
+                        array_push($bans[$keys[$i]][$j], $row[$keys[$i]]);
+                        array_push($bans[$keys[$i]][$j], $row['employees.login']);
+                        array_push($bans[$keys[$i]][$j], $row['date']);
+                        $j++;
+                    }
+                }
+            }
+            return $bans;
         }
     }
 
