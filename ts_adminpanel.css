@@ -71,7 +71,7 @@ input {
     color: black;
 }
 
-#login-box button:hover, #menu-container button:hover, #content button:hover, #content select:hover {
+#login-box button:hover, #menu-container button:hover, #content button:hover, #content select:hover, #login-box button:focus, #menu-container button:focus, #content button:focus, #content select:focus {
     color: white;
     background-position: left;
     cursor: pointer;
@@ -208,6 +208,11 @@ input {
     pointer-events: none;
 }
 
+.title-left { 
+    text-align: left;
+    margin-left: 2%;
+}
+
 .notify {
     width: 100%;
     min-height: 8%;
@@ -321,11 +326,31 @@ input {
     column-count: 2;
 }
 
-.content-container-columnview button {
+.content-container-inlineview {
+    display: flex;
+    margin-left: 2%;
+    width: 96%;
+    gap: 2%;
+}
+
+tr.message-row {
+    transition: .3s;
+}
+
+tr.message-row:hover {
+    cursor: pointer;
+    transform: scale(1.03, 1.03);
+}
+
+tr.new-message td {
+    background-color: greenyellow;
+}
+
+.content-container-columnview button, .content-container-inlineview button {
     margin-left: 0%!important;
 }
 
-button.button_right {
+button.button-right {
     width: 25%!important;
     right: 2%!important;
     margin-top: -.5%!important;
@@ -395,7 +420,7 @@ button.button_right {
     }
 
     #menu {
-        display: block;
+        display: none;
         background-color: white;
         margin-left: 0%;
         margin-top: 0%;

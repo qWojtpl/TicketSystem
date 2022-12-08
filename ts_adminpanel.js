@@ -15,6 +15,8 @@ class AdminPanel {
     static Initialized = false;
     static MaxPriority = 0;
     static EditingEmployee;
+    static ViewBans;
+    static Message;
 
     static Setup()
     {
@@ -201,7 +203,7 @@ class AdminPanel {
                         addGroup = "<button class='button-right' onClick='AdminPanel.LoadContent(`add_group`)''>" + AdminPanel.Lang['addNewGroup'] + "</button>";
                     }
                     var groups = [];
-                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>" + AdminPanel.Lang['groups'] + addGroup + "</p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
+                    document.getElementById('content').innerHTML = "<p class='title-left'>" + AdminPanel.Lang['groups'] + addGroup + "</p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
                     $.post(AdminPanel.handler, {
                         "type" : "GetGroups"
                     }, function(data, status)
@@ -253,7 +255,7 @@ class AdminPanel {
                         addEmployee = "<button class='button-right' onClick='AdminPanel.LoadContent(`add_employee`)''>" + AdminPanel.Lang['addNewEmployee'] + "</button>";
                     }
                     var employees = [];
-                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>" + AdminPanel.Lang['employees'] + addEmployee + "</p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
+                    document.getElementById('content').innerHTML = "<p class='title-left'>" + AdminPanel.Lang['employees'] + addEmployee + "</p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
                     $.post(AdminPanel.handler, {
                         "type" : "GetEmployees"
                     }, function(data, status)
@@ -304,7 +306,7 @@ class AdminPanel {
                     } else {
                         var cancelButton = "";
                     }
-                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>" + AdminPanel.Lang['addNewEmployee'] + cancelButton + "</p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
+                    document.getElementById('content').innerHTML = "<p class='title-left'>" + AdminPanel.Lang['addNewEmployee'] + cancelButton + "</p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
                     if(!AdminPanel.UserPermissions.includes('employees.add') && !AdminPanel.UserPermissions.includes('all'))
                     {
                         AdminPanel.NoPermission();
@@ -328,7 +330,7 @@ class AdminPanel {
                     } else {
                         var cancelButton = "";
                     }
-                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>" + "Edit employee" + cancelButton + "</p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
+                    document.getElementById('content').innerHTML = "<p class='title-left'>" + "Edit employee" + cancelButton + "</p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
                     if(!AdminPanel.UserPermissions.includes('employees.edit') && !AdminPanel.UserPermissions.includes('all'))
                     {
                         AdminPanel.NoPermission();
@@ -361,7 +363,7 @@ class AdminPanel {
                     } else {
                         var cancelButton = "";
                     }
-                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>" + AdminPanel.Lang['addNewGroup'] + cancelButton + "</p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
+                    document.getElementById('content').innerHTML = "<p class='title-left'>" + AdminPanel.Lang['addNewGroup'] + cancelButton + "</p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
                     if(!AdminPanel.UserPermissions.includes('groups.add') && !AdminPanel.UserPermissions.includes('all'))
                     {
                         AdminPanel.NoPermission();
@@ -373,7 +375,7 @@ class AdminPanel {
                     }
                     break;
                 case "settings":
-                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>Settings</p><div id='content-container' class='content-container-big'><div class='content-container-columnview'><button onClick='AdminPanel.LoadContent(`messages`);'>Messages</button><button onClick='AdminPanel.LoadContent(`logs`);'>Logs</button><button onClick='AdminPanel.LoadContent(`ts_info`);'>TicketSystem information</button><button onClick='AdminPanel.LoadContent(`bans`);'>Bans</button><button onClick='AdminPanel.LoadContent(`language`);'>Language</button><button onClick='AdminPanel.LoadContent(`manage_account`);'>Change account information</button><button onClick='AdminPanel.LoadContent(`edithotbar`);'>Edit hotbar</button><button onClick='AdminPanel.LoadContent(`login_history`);'>Login history</button></div></div>";
+                    document.getElementById('content').innerHTML = "<p class='title-left'>Settings</p><div id='content-container' class='content-container-big'><div class='content-container-columnview'><button onClick='AdminPanel.LoadContent(`messages`);'>Messages</button><button onClick='AdminPanel.LoadContent(`logs`);'>Logs</button><button onClick='AdminPanel.LoadContent(`ts_info`);'>TicketSystem information</button><button onClick='AdminPanel.LoadContent(`bans`);'>Bans</button><button onClick='AdminPanel.LoadContent(`language`);'>Language</button><button onClick='AdminPanel.LoadContent(`manage_account`);'>Change account information</button><button onClick='AdminPanel.LoadContent(`edithotbar`);'>Edit hotbar</button><button onClick='AdminPanel.LoadContent(`login_history`);'>Login history</button></div></div>";
                     break;
                 case "language":
                     document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%'>Language<button class='button-right' onClick='AdminPanel.LoadContent(`settings`)'>Back</button></p><div id='content-container'><h1>Edit your language preferences</h1><div id='content-container-inputs'><select id='languageSelect'></select><button onClick='AdminPanel.ChangeLanguage(`languageSelect`)'>Save</button></div></div>";
@@ -405,7 +407,7 @@ class AdminPanel {
                     document.getElementById('content').innerHTML = "<div id='content-container'><img src='./images/logo.png' style='width:60%;'><p>Version: 0.1.2</p><p>Release date: 24.11.2022</p></div>";
                     break;
                 case "login_history":
-                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>Login history<button class='button-right' onClick='AdminPanel.LoadContent(`settings`)'>Cancel</button></p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
+                    document.getElementById('content').innerHTML = "<p class='title-left'>Login history<button class='button-right' onClick='AdminPanel.LoadContent(`settings`)'>Cancel</button></p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
                     $.post(AdminPanel.handler, {
                         "type": "GetLoginHistory"
                     }, function(data, status)
@@ -458,26 +460,125 @@ class AdminPanel {
                         kicked = true;
                         break;
                     }
-                    document.getElementById('content').innerHTML = "<p style='text-align:left;margin-left:2%;'>Bans<button class='button-right'>Cancel</button></p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
+                    document.getElementById('content').innerHTML = "<p class='title-left'>Bans<button class='button-right' onClick='AdminPanel.LoadContent(`settings`)'>Cancel</button></p><div id='content-container'><div class='content-container-columnview'><button onClick='AdminPanel.ViewBans=`email`;AdminPanel.LoadContent(`viewbans`);'>Email bans</button><button onClick='AdminPanel.ViewBans=`ip`;AdminPanel.LoadContent(`viewbans`);'>IP bans</button><button onClick='AdminPanel.ViewBans=`username`;AdminPanel.LoadContent(`viewbans`);'>Username bans</button><button onClick='AdminPanel.ViewBans=`cookie`;AdminPanel.LoadContent(`viewbans`);'>Cookie bans</button></div></div>";
+                    break;
+                case "viewbans":
+                    if(!AdminPanel.UserPermissions.includes("bans.view") && !AdminPanel.UserPermissions.includes("all"))
+                    {
+                        AdminPanel.NoPermission();
+                        AdminPanel.LoadContent('settings');
+                        kicked = true;
+                        break;
+                    }
+                    if(AdminPanel.ViewBans == null)
+                    {
+                        AdminPanel.LoadContent('bans');
+                        kicked = true;
+                        break;
+                    }
+                    document.getElementById('content').innerHTML = "<p class='title-left'>Bans<button class='button-right' onClick='AdminPanel.LoadContent(`bans`)'>Cancel</button></p><div id='content-container'><div class='loading-circle loading-circle-small'></div></div>";
                     $.post(AdminPanel.handler, {
-                        "type": "GetBans"
+                        "type": "GetBans",
+                        "keys": AdminPanel.ViewBans
                     }, function(data, status)
                     {
-                        console.log(data);
                         let json = JSON.parse(data);
                         document.getElementById('content-container').innerHTML = "";
-                        var str = "<p>E-mail bans</p><table style='border:1px solid black'><tr><th>Email</th><th>Who banned</th><th>Date</th><th>Actions</th></tr>"; 
-                        if(json.Bans.email.length < 1)
+                        var display = "?";
+                        switch(AdminPanel.ViewBans)
                         {
-                            str = "<tr><td colspan=4>There's no email bans..</tr>";
+                            case "email":
+                                display = "E-mail";
+                                break;
+                            case "ip":
+                                display = "IP";
+                                break;
+                            case "username":
+                                display = "Username";
+                                break;
+                            case "cookie":
+                                display = "Cookie";
+                                break;
+
+                        }
+                        var add = "";
+                        if(AdminPanel.UserPermissions.includes('all') || AdminPanel.UserPermissions.includes('bans.add'))
+                        {
+                            var add = "<button class='button-right' onclick='AdminPanel.LoadContent(`add_ban`)'>Add</button>";
+                        }
+                        var str = "<p>" + display + " bans" + add + "</p><table style='border:1px solid black'><tr><th>" + display + "</th><th>Who banned</th><th>Date</th><th>Actions</th></tr>"; 
+                        if(json.Bans.length < 1)
+                        {
+                            str = str + "<tr><td colspan=4>There's no bans for: " + display + "..</tr>";
                         } else {
-                            for(var i = 0; i < json.Bans.email.length; i++)
+                            for(var j = 0; j < 100; j++)
                             {
-                                str = str + "<tr><td>" + json.Bans.email[i][0] + "</td><td>" + json.Bans.email[i][1] + "</td><td>" + json.Bans.email[i][2] + "</td></tr>";
+                                for(var i = 0; i < json.Bans.length; i++)
+                                {
+                                    str = str + "<tr><td>" + json.Bans[i][0] + "</td><td>" + json.Bans[i][1] + "</td><td>" + json.Bans[i][2] + "</td></tr>";
+                                }
                             }
                         }
                         str = str + "</table>";
                         document.getElementById('content-container').innerHTML = document.getElementById('content-container').innerHTML + str;
+                    });
+                    break;
+                case "add_ban":
+                    break;
+                case "messages":
+                    if(AdminPanel.UserPermissions.includes('messages.send') || AdminPanel.UserPermissions.includes('all'))
+                    {
+                        var str = "<div class='content-container-inlineview'><button onClick='AdminPanel.LoadContent(`sent_messages`)'>Messages sent</button><button onClick='AdminPanel.LoadContent(`new_message`)'>Send message</button>";
+                    } else {
+                        var str = "";
+                    }
+                    document.getElementById('content').innerHTML = "<p class='title-left'>Messages</p><div id='content-container' class='content-container-big'><div class='loading-circle loading-circle-small'></div></div>";
+                    document.getElementById('content-container').innerHTML = str + "</div>" + document.getElementById('content-container').innerHTML;
+                    if(!AdminPanel.UserPermissions.includes('messages.receive') && !AdminPanel.UserPermissions.includes('all'))
+                    {
+                        document.getElementById('content-container').innerHTML = str + "</div><p>You don't have permission to receive messages.</p><br>";
+                    } else {
+                        str = str + "<button onClick='AdminPanel.LoadContent(`messages`)'>Refresh</button></div>";
+                        $.post(AdminPanel.handler, {
+                            "type": "GetMessages"
+                        }, function(data, status) {
+                            console.log(data);
+                            let json = JSON.parse(data);
+                            if(json.Messages.length == 0)
+                            {
+                                document.getElementById('content-container').innerHTML = str + "<p>Not found any messages..</p>";
+                            } else {
+                                str = str + "<br><hr><br><table><tr><th>Title</th><th>From</th><th>Date</th><th>Status</th></tr>";
+                                for(var i = 0; i < json.Messages.length; i++)
+                                {
+                                    if(json.Messages[i][3] == 0)
+                                    {
+                                        var st = "New";
+                                        var cl = "new-message";
+                                    } else {
+                                        var st = "Readed";
+                                        var cl = "";
+                                    }
+                                    str = str + "<tr class='message-row " + cl + "' onClick='AdminPanel.Message=" + (json.Messages.length-i-1) + ";AdminPanel.LoadContent(`view_message`);'><td>" + json.Messages[i][0] + "</td><td>" + json.Messages[i][1] + "</td><td>" + json.Messages[i][2] + "</td><td>" + st + "</td></tr>";
+                                }
+                                str = str + "</table>";
+                                document.getElementById('content-container').innerHTML = str;
+                            }
+                        });
+                    }
+                    break;
+                case "view_message":
+                    if(AdminPanel.Message == null)
+                    {
+                        AdminPanel.LoadContent('messages');
+                        kicked = true;
+                        break;
+                    }
+                    $.post(AdminPanel.handler, {
+                        "type": "GetMessages",
+                        "selfID": AdminPanel.Message
+                    }, function(data, status) {
+                        let json = JSON.parse(json);
                     });
                     break;
                 default:

@@ -19,7 +19,7 @@
             {
                 Handler::RegisterOutput('Error', '1');
                 Handler::RegisterOutput('ErrorCode', Handler::GetErrorCode(0));
-                Handler::Output();
+                //Handler::Output();
             } else {
                 Handler::Begin();
             }
@@ -32,7 +32,7 @@
             {
                 Handler::RegisterOutput('Error', '1');
                 Handler::RegisterOutput('ErrorCode', Handler::GetErrorCode(1));
-                Handler::Output();
+                //Handler::Output();
                 return false;
             }
             switch(Handler::GetPostParameter('type'))
@@ -46,7 +46,7 @@
                     } else {
                         Handler::RegisterOutput('authConfirmed', 0);
                     }
-                    Handler::Output();
+                    //Handler::Output();
                     break;
                 case 'Login':
                     Program::Login();
@@ -56,18 +56,18 @@
                     break;
                 case 'GetEmployees':
                     Handler::RegisterOutput('employees', Program::GetEmployees());
-                    Handler::Output();
+                    //Handler::Output();
                     break;
                 case 'CreateEmployee':
                     Program::CreateEmployee();
                     break;
                 case 'GetUserPermitGroups':
                     Handler::RegisterOutput('groups', Program::GetUserPermitGroups(Handler::GetSavedValue('tsAP_login')));
-                    Handler::Output();
+                    //Handler::Output();
                     break;
                 case 'GetGroups':
                     Handler::RegisterOutput('groups', Program::GetGroups());
-                    Handler::Output();
+                    //Handler::Output();
                     break;
                 case 'CreateGroup':
                     Program::CreateGroup();
@@ -77,23 +77,26 @@
                     break;
                 case 'GetUserLanguage':
                     Handler::RegisterOutput('UserLanguage', Program::GetUserLanguage());
-                    Handler::Output();
+                    //Handler::Output();
                     break;
                 case 'SetDefaultLanguage':
                     Program::SetDefaultLanguage();
                     break;
                 case 'GetLoginHistory':
                     Handler::RegisterOutput('LoginHistory', Program::GetLoginHistory(Handler::GetSavedValue('tsAP_login'), 128));
-                    Handler::Output();
+                    //Handler::Output();
                     break;
                 case 'GetBans':
                     Handler::RegisterOutput('Bans', Program::GetBans());
-                    Handler::Output();
+                    //Handler::Output();
+                    break;
+                case 'GetMessages':
+                    Handler::RegisterOutput('Messages', Program::GetMessages());
                     break;
                 default:
                     Handler::RegisterOutput('Error', 1);
                     Handler::RegisterOutput('ErrorCode', Handler::GetErrorCode(1));
-                    Handler::Output();
+                    //Handler::Output();
                     break;
             }
         }
@@ -116,7 +119,7 @@
             {
                 Handler::RegisterOutput('LoginConfirmed', false);
                 Handler::RegisterOutput('WaitError', true);
-                Handler::Output();
+                //Handler::Output();
                 return false;
             }
             $query = Handler::SendRequest('SELECT * FROM employees');
@@ -133,12 +136,13 @@
                             Handler::SaveValue('tsAP_auth', 1);
                             Handler::SaveValue('tsAP_visibleName', $row['visibleName']);
                             Handler::SaveValue('tsAP_login', $row['login']);
+                            Handler::SaveValue('tsAP_id', $row['id_employee']);
                             Handler::RegisterOutput('LoginConfirmed', true);
                             Handler::RegisterOutput('visibleName', $row['visibleName']);
                             Handler::RegisterOutput('permissions', Program::GetUserPermissions($row['login']));
                             Handler::SendRequest('INSERT INTO login_logs VALUES(default, '.$row['id_employee'].', "'.Handler::GetUserIP().'", now(), 1)');
                             Handler::SaveValue('tsAP_loginSessionID', mysqli_insert_id(Handler::$conn));
-                            Handler::Output();
+                            //Handler::Output();
                             return true;
                         }
                     }
@@ -146,7 +150,7 @@
             }
             setcookie('ts_LoginAwait', 1, time() + 3);
             Handler::RegisterOutput('LoginConfirmed', false);
-            Handler::Output();
+            //Handler::Output();
             return false;
         }
 
@@ -155,9 +159,10 @@
             Handler::RemoveSavedValue('tsAP_auth');
             Handler::RemoveSavedValue('tsAP_visibleName');
             Handler::RemoveSavedValue('tsAP_login');
+            Handler::RemoveSavedValue('tsAP_id');
             Handler::RemoveSavedValue('tsAP_loginSessionID');
             Handler::RegisterOutput('Logout', true);
-            Handler::Output();
+            //Handler::Output();
         }
 
         public static function GetUserPermissions($user)
@@ -293,7 +298,7 @@
             if(!Program::ConfirmAuth())
             {
                 Handler::RegisterOutput('authConfirmed', 0);
-                Handler::Output();
+                //Handler::Output();
                 return null;
             }
             Handler::RegisterOutput('authConfirmed', 1);
@@ -303,7 +308,7 @@
                 {
                     Handler::RegisterOutput('Error', 1);
                     Handler::RegisterOutput('FunctionErrorCode', 1);
-                    Handler::Output();
+                    //Handler::Output();
                     return false;
                 }
                 $newEmployeeInfo = array(Handler::SafetizeString(Handler::GetPostParameter('login')), Handler::SafetizeString(Handler::GetPostParameter('visibleName')), Handler::SafetizeString(Handler::GetPostParameter('password')));
@@ -335,7 +340,7 @@
                     {
                         Handler::RegisterOutput('Error', 1);
                         Handler::RegisterOutput('FunctionErrorCode', 3);
-                        Handler::Output();
+                        //Handler::Output();
                         return false;
                     }
                 }
@@ -345,7 +350,7 @@
                     {
                         Handler::RegisterOutput('Error', 1);
                         Handler::RegisterOutput('FunctionErrorCode', 4);
-                        Handler::Output();
+                        //Handler::Output();
                         return false;
                     }
                 }
@@ -353,7 +358,7 @@
                 {
                     Handler::RegisterOutput('Error', 1);
                     Handler::RegisterOutput('FunctionErrorCode', 2);
-                    Handler::Output();
+                    //Handler::Output();
                     return false;
                 }
                 $query = Handler::SendRequest('SELECT * FROM employees WHERE login="'.$newEmployeeInfo[0].'"');
@@ -361,7 +366,7 @@
                 {
                     Handler::RegisterOutput('Error', 1);
                     Handler::RegisterOutput('FunctionErrorCode', 0);
-                    Handler::Output();
+                    //Handler::Output();
                     return false;
                 }
                 $query = Handler::SendRequest('INSERT INTO employees VALUES(default, "'.$newEmployeeInfo[1].'", "'.$newEmployeeInfo[0].'", "'.$newEmployeeInfo[2].'", now())');
@@ -374,7 +379,7 @@
                     {
                         Handler::RegisterOutput('Error', 1);
                         Handler::RegisterOutput('FunctionErrorCode', 3);
-                        Handler::Output();
+                        //Handler::Output();
                         return false;
                     } else {
                         while($row = mysqli_fetch_assoc($query['Query']))
@@ -392,11 +397,11 @@
                     $query = Handler::SendRequest('INSERT INTO employees_permissions VALUES("'.$newEmployeePermissions[$i].'", "'.$lastid.'")');
                 }
                 Handler::RegisterOutput('CreatedEmployee', 1);
-                Handler::Output();
+                //Handler::Output();
                 return true;
             } else {
                 Handler::RegisterOutput('PermissionError', true);
-                Handler::Output();
+                //Handler::Output();
                 return null;
             }
         }
@@ -406,7 +411,7 @@
             if(!Program::ConfirmAuth())
             {
                 Handler::RegisterOutput('authConfirmed', 0);
-                Handler::Output();
+                //Handler::Output();
                 return null;
             }
             Handler::RegisterOutput('authConfirmed', 1);
@@ -416,7 +421,7 @@
                 {
                     Handler::RegisterOutput('Error', 1);
                     Handler::RegisterOutput('FunctionErrorCode', 1);
-                    Handler::Output();
+                    //Handler::Output();
                     return false;
                 }
                 $newGroupName = Handler::GetPostParameter('name');
@@ -438,7 +443,7 @@
                     {
                         Handler::RegisterOutput('Error', 1);
                         Handler::RegisterOutput('FunctionErrorCode', 4);
-                        Handler::Output();
+                        //Handler::Output();
                         return false;
                     }
                 }
@@ -446,14 +451,14 @@
                 {
                     Handler::RegisterOutput('Error', 1);
                     Handler::RegisterOutput('FunctionErrorCode', 4);
-                    Handler::Output();
+                    //Handler::Output();
                     return false;
                 }
                 if(strlen($newGroupName) < 2)
                 {
                     Handler::RegisterOutput('Error', 1);
                     Handler::RegisterOutput('FunctionErrorCode', 2);
-                    Handler::Output();
+                    //Handler::Output();
                     return false;
                 }
                 $query = Handler::SendRequest('SELECT * FROM groups WHERE name="'.$newGroupName.'"');
@@ -461,7 +466,7 @@
                 {
                     Handler::RegisterOutput('Error', 1);
                     Handler::RegisterOutput('FunctionErrorCode', 0);
-                    Handler::Output();
+                    //Handler::Output();
                     return false;
                 }
                 $query = Handler::SendRequest('INSERT INTO groups VALUES(default, "'.$newGroupName.'", "'.$newGroupPriority.'")');
@@ -471,11 +476,11 @@
                     $query = Handler::SendRequest('INSERT INTO groups_permissions VALUES("'.$newGroupPermissions[$i].'", "'.$lastid.'")');
                 }
                 Handler::RegisterOutput('CreatedGroup', 1);
-                Handler::Output();
+                //Handler::Output();
                 return true;
             } else {
                 Handler::RegisterOutput('PermissionError', true);
-                Handler::Output();
+                //Handler::Output();
                 return null;
             }
         }
@@ -485,7 +490,7 @@
             if(!Program::ConfirmAuth())
             {
                 Handler::RegisterOutput('authConfirmed', 0);
-                Handler::Output();
+                //Handler::Output();
                 return null;
             }
             $groups = array();
@@ -521,18 +526,18 @@
             if(Handler::GetPostParameter('value') == null)
             {
                 Handler::RegisterOutput('Error', 1);
-                Handler::Output();
+                //Handler::Output();
                 return false;
             }
             if(!in_array(Handler::GetPostParameter('value'), Handler::$LangList))
             {
                 Handler::RegisterOutput('Error', 1);
-                Handler::Output();
+                //Handler::Output();
                 return false;
             }
             setcookie('ts_PreferencedLanguage', Handler::GetPostParameter('value'), time() + (10 * 365 * 24 * 60 * 60));
             Handler::RegisterOutput('Saved', 1);
-            Handler::Output();
+            //Handler::Output();
             return true;
         }
 
@@ -551,32 +556,32 @@
             if(!Program::ConfirmAuth())
             {
                 Handler::RegisterOutput('authConfirmed', 0);
-                Handler::Output();
+                //Handler::Output();
                 return false;
             }
             if(!Program::UserHasPermission('all') && !Program::UserHasPermission('language.change.default'))
             {
                 Handler::RegisterOutput('PermissionError', 1);
-                Handler::Output();
+                //Handler::Output();
                 return false;
             }
             if(Handler::GetPostParameter('value') == null)
             {
                 Handler::RegisterOutput('Error', 1);
-                Handler::Output();
+                //Handler::Output();
                 return false;
             }
             if(!in_array(Handler::GetPostParameter('value'), Handler::$LangList))
             {
                 Handler::RegisterOutput('Error', 1);
-                Handler::Output();
+                //Handler::Output();
                 return false;
             }
             $content = json_decode(file_get_contents('ts_language.json'));
             $content->default = Handler::GetPostParameter('value');
             file_put_contents('ts_language.json', json_encode($content, JSON_PRETTY_PRINT));
             Handler::RegisterOutput('Saved', 1);
-            Handler::Output();
+            //Handler::Output();
             return true;
         }
 
@@ -621,27 +626,135 @@
                 Handler::RegisterOutput('PermissionError', 1);
                 return $bans;
             }
-            $keys = ['email', 'ip', 'cookie', 'username'];
+            if(Handler::GetPostParameter('keys') == null)
+            {
+                return $bans;
+            }
+            $allkeys = ['username', 'cookie', 'ip', 'email'];
+            
+            $keys = explode(',', Handler::GetPostParameter('keys'));
+            for($i = 0; $i < count($keys); $i++)
+            {
+                if(!in_array($keys[$i], $allkeys))
+                {
+                    Handler::RegisterOutput('Error', '1');
+                    return $bans;
+                }
+            }
+            $j = 0;
             for($i = 0; $i < count($keys); $i++)
             {
                 $query = Handler::SendRequest('SELECT '.$keys[$i].', employees.login, date FROM '.$keys[$i].'_bans JOIN (employees) USING (id_employee)');
-                $bans[$keys[$i]] = array();
                 if($query['Count'] > 0)
                 {
-                    $j = 0;
                     while($row = mysqli_fetch_assoc($query['Query']))
                     {
-                        array_push($bans[$keys[$i]][$j], $row[$keys[$i]]);
-                        array_push($bans[$keys[$i]][$j], $row['employees.login']);
-                        array_push($bans[$keys[$i]][$j], $row['date']);
+                        $bans[$j][0] = $row[$keys[$i]];
+                        $bans[$j][1] = $row['login'];
+                        $bans[$j][2] = $row['date'];
                         $j++;
                     }
                 }
             }
             return $bans;
         }
+
+        public static function GetMessages()
+        {
+            $messages = array();
+            if(!Program::ConfirmAuth())
+            {
+                Handler::RegisterOutput('authConfirmed', 0);
+                return $messages;
+            }
+            if(!Program::UserHasPermission('messages.receive') && !Program::UserHasPermission('all'))
+            {
+                Handler::RegisterOutput('PermissionError', true);
+                return $messages;
+            }
+            $messages = array(); 
+            $query = Handler::SendRequest('SELECT * FROM messages WHERE receiver='.Handler::GetSavedValue('tsAP_id').' ORDER BY id_message DESC');
+            if($query['Count'] > 0)
+            {
+                while($row = mysqli_fetch_assoc($query['Query']))
+                {
+                    $message = array();
+                    $message[0] = $row['title'];
+                    $query2 = Handler::SendRequest('SELECT login FROM employees WHERE id_employee='.$row['sender']);
+                    while($row2 = mysqli_fetch_assoc($query2['Query']))
+                    {
+                        $message[1] = $row2['login'];
+                    }
+                    $message[2] = $row['date'];
+                    $message[3] = $row['readed'];
+                    array_push($messages, $message);
+                }
+            }
+            
+            return $messages;
+        }
+
+        public static function SendMessage()
+        {
+            if(!Program::ConfirmAuth())
+            {
+                Handler::RegisterOutput('authConfirmed', 0);
+                return false;
+            }
+            if(!Program::UserHasPermission('messages.send') && !Program::UserHasPermission('all'))
+            {
+                Handler::RegisterOutput('PermissionError', true);
+                return false;
+            }
+            $title = Handler::SafetizeString(Handler::GetPostParameter('title'));
+            $message = Handler::SafetizeString(Handler::GetPostParameter('message'));
+            if(strlen($title) < 3 || strlen($message) < 3)
+            {
+                Handler::RegisterOutput('Error', 1);
+                Handler::RegisterOutput('FunctionErrorCode', 2);
+                //Handler::Output();
+                return false;
+            }
+            $receivers = explode(",", Handler::GetPostParameter('receivers'));
+            if(count($receivers) == 0)
+            {
+                Handler::RegisterOutput('Error', 1);
+                Handler::RegisterOutput('FunctionErrorCode', 1);
+                return false;
+            }
+            $receivers_id = array();
+            for($i = 0; $i < count($receivers); $i++)
+            {
+                $query = Handler::SendRequest('SELECT id_employee FROM employees WHERE login="'.Handler::SafetizeString($receivers[$i]).'"');
+                if($query['Count'] == 0)
+                {
+                    Handler::RegisterOutput('Error', 1);
+                    Handler::RegisterOutput('FunctionErrorCode', 0);
+                    Handler::RegisterOutput('User', $receivers[$i]);
+                    return false;
+                } else {
+                    if(!in_array($row['id_employee'], $receivers_id))
+                    {
+                        array_push($receivers_id, $row['id_employee']);
+                    }
+                }
+            }
+            $errorUsers = array();
+            for($i = 0; $i < count($receivers_id); $i++)
+            {
+                $query = Handler::SendRequest('INSERT INTO messages VALUES(default, '.Handler::GetSavedValue('tsAP_id').', '.$receivers_id.', "'.$title.'", "'.$message.'", now(), false);');
+                if($query['Error'] != null)
+                {
+                    array_push($errorUsers, $receivers[$i]);
+                }
+            }
+            Handler::RegisterOutput('ErrorUsers', $errorUsers);
+            Handler::RegisterOutput('Sent', 1);
+            return true;
+        }
     }
 
     Handler::Setup();
+    Handler::Output();
 
 ?>

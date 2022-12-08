@@ -109,3 +109,15 @@ CREATE TABLE login_logs (
     status INT,
     FOREIGN KEY (id_employee) REFERENCES employees(id_employee) ON DELETE CASCADE
 );
+
+CREATE TABLE messages (
+    id_message INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    sender INT,
+    receiver INT,
+    title VARCHAR(128),
+    content VARCHAR(2048),
+    date DATETIME,
+    readed BOOLEAN,
+    FOREIGN KEY (sender) REFERENCES employees(id_employee) ON DELETE CASCADE,
+    FOREIGN KEY (receiver) REFERENCES employees(id_employee) ON DELETE CASCADE
+);
