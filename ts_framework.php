@@ -6,18 +6,15 @@
         public static $conn;
         public static $_Lang = array();
 
-        public static function Setup()
-        {
+        public static function Setup() {
             return true;
         }
 
-        public static function Begin()
-        {
+        public static function Begin() {
             return true;
         }
 
-        public static function GetErrorCode($error)
-        {
+        public static function GetErrorCode($error) {
             switch($error)
             {
                 case 0:
@@ -39,79 +36,65 @@
             return "Cannot found message for this error code (".$error.")..";
         }
 
-        public static function Output()
-        {
+        public static function Output() {
             echo json_encode(self::$_Output);
             return true;
         }
 
-        public static function RegisterOutput($name, $value)
-        {
+        public static function RegisterOutput($name, $value) {
             self::$_Output[$name] = $value;
             return true;
         }
 
-        public static function SaveValue($name, $value)
-        {
+        public static function SaveValue($name, $value) {
             $_SESSION[$name] = $value;
             return true;
         }
 
-        public static function GetSavedValue($name)
-        {
-            if(isset($_SESSION[$name]))
-            {
+        public static function GetSavedValue($name) {
+            if(isset($_SESSION[$name])) {
                 return $_SESSION[$name];
             } else {
                 return false;
             }
         }
 
-        public static function GetValueIsSaved($name)
-        {
-            if(array_key_exists($name, $_SESSION))
-            {
+        public static function GetValueIsSaved($name) {
+            if(array_key_exists($name, $_SESSION)) {
                 return true;
             } else {
                 return false;
             }
         }
 
-        public static function RemoveSavedValue($name)
-        {
+        public static function RemoveSavedValue($name) {
             unset($_SESSION[$name]);
             return true;
         }
 
-        public static function GetURLParameter($name)
-        {
+        public static function GetURLParameter($name) {
             return $_GET[$name];
         }
 
-        public static function GetPostParameter($name)
-        {
-            if(isset($_POST[$name]))
-            {
+        public static function GetPostParameter($name) {
+            if(isset($_POST[$name])) {
                 return $_POST[$name];
             } else {
                 return null;
             }
         }
 
-        public static function SendRequest($cmd)
-        {
+        public static function SendRequest($cmd) {
             $query = array();
             $query['Command'] = $cmd;
-            if(!$query['Query'] = mysqli_query(Handler::$conn, $cmd))
-            {
+            if(!$query['Query'] = mysqli_query(Handler::$conn, $cmd)) {
                 $query['Error'] = mysqli_error(Handler::$conn);
             }
             if(gettype($query['Query']) != "boolean") $query['Count'] = mysqli_num_rows($query['Query']);
             return $query;
         }
 
-        public static function SafetizeString($string)
-        {
+        public static function SafetizeString($string) {
             $string = str_replace('`', ' ', $string);
             $string = str_replace("'", ' ', $string);
             $string = str_replace('"', ' ', $string);
@@ -121,22 +104,17 @@
 
             $string = explode(" ", $string);
 
-            for($i = 0; $i < count($string); $i++)
-            {
-                if(substr(strtolower($string[$i]), 0, 7) == "http://" || substr(strtolower($string[$i]), 0, 8) == "https://")
-                {
+            for($i = 0; $i < count($string); $i++) {
+                if(substr(strtolower($string[$i]), 0, 7) == "http://" || substr(strtolower($string[$i]), 0, 8) == "https://") {
                     $string[$i] = "<a href='$string[$i]' target='_blank'>".$string[$i]."</a>";
                 }
             }
-            
             $string = implode(" ", $string);
             return $string;
         }
 
-        public static function isSetRequestError($query)
-        {
-            if(isset($query['Error']))
-            {
+        public static function isSetRequestError($query) {
+            if(isset($query['Error'])) {
                 Handler::RegisterOutput('Error', '1');
                 Handler::RegisterOutput('ErrorCode', Handler::GetErrorCode(2));
                 Handler::RegisterOutput('Details', $query['Command']);
@@ -145,6 +123,28 @@
             } else {
                 return false;
             }
+        }
+
+        public static function GetUserIP() {
+            if (isset($_SERVER["HTTP_CF_CONNECTING_IP"])) {
+                $_SERVER['REMOTE_ADDR'] = $_SERVER["HTTP_CF_CONNECTING_IP"];
+                $_SERVER['HTTP_CLIENT_IP'] = $_SERVER["HTTP_CF_CONNECTING_IP"];
+            }
+            $client  = @$_SERVER['HTTP_CLIENT_IP'];
+            $forward = @$_SERVER['HTTP_X_FORWARDED_FOR'];
+            $remote  = $_SERVER['REMOTE_ADDR'];
+        
+            if(filter_var($client, FILTER_VALIDATE_IP))
+            {
+                $ip = $client;
+            }
+            else if(filter_var($forward, FILTER_VALIDATE_IP))
+            {
+                $ip = $forward;
+            } else {
+                $ip = $remote;
+            }
+            return $ip;
         }
     }
 
